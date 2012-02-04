@@ -1,0 +1,4 @@
+OAuthConsumerKey=INSERT_HERE1
+OAuthConsumerSecret=INSERT_HERE2
+AccessToken=INSERT_HERE3
+AccessTokenSecret=INSERT_HERE4

@@ -5,12 +5,12 @@ Based on: http://github.com/RobotGrrl/Simple-Processing-Twitter
 --------------*/
 
 // Oauth
-static String OAuthConsumerKey = "INSERT_HERE";
-static String OAuthConsumerSecret = "INSERT_HERE";
+static String OAuthConsumerKey;
+static String OAuthConsumerSecret;
 
 // Access Token
-static String AccessToken = "INSERT_HERE";
-static String AccessTokenSecret = "INSERT_HERE";
+static String AccessToken;
+static String AccessTokenSecret;
 
 // Variables
 String myTimeline;
@@ -24,6 +24,20 @@ void setup() {
   size(100, 100);
   background(0);
 
+  //Get the API keys/tokens from the config txt file - in the data folder
+  String[] config_txt = loadStrings("twitter_api_keys_tokens.txt");
+  String[] twitter_api_config = new String[4];
+  int key_counter = 0;
+  for (int i=0; i<config_txt.length; i++) {
+    String[] splitline = splitTokens(config_txt[i],"= ");
+    twitter_api_config[key_counter++] = splitline[1];
+  }
+  OAuthConsumerKey = twitter_api_config[0];
+  OAuthConsumerSecret = twitter_api_config[1];
+  AccessToken = twitter_api_config[2];
+  AccessTokenSecret = twitter_api_config[3];
+
+  //Now, do the Twitter stuff
   connectTwitter();
   sendTweet("I am exploring and testing my new P.A.U.S.E.S. device.");
   //getTimeline();
