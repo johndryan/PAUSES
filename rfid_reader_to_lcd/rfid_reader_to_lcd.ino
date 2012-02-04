@@ -4,11 +4,13 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2);   // initialize the library with the numb
 int  val = 0; 
 char code[10]; 
 int bytesread = 0;
+int speakerPin = 6;
 
 void setup() { 
   Serial.begin(2400);                    // RFID reader SOUT pin connected to Serial RX pin at 2400bps 
   pinMode(7,OUTPUT);                     // Set digital pin 2 as OUTPUT to connect it to the RFID /ENABLE pin 
   digitalWrite(7, LOW);                  // Activate the RFID reader
+  pinMode(speakerPin, OUTPUT);                    // Set pin for speaker output
   
   lcd.begin(16, 2);                      // set up the LCD's number of columns and rows
   lcd.setCursor(0, 0);
@@ -53,7 +55,10 @@ void loop() {
       } 
       bytesread = 0; 
       digitalWrite(7, HIGH);             // deactivate the RFID reader for a moment so it will not flood
-      delay(1500);                       // wait for a bit
+      analogWrite(speakerPin, 128);      // Send pwm wave to speaker
+      delay(250);                        // wait for half a second
+      digitalWrite(speakerPin, LOW);     // turn the speaker off
+      delay(1000);                       // wait for a bit
       digitalWrite(7, LOW);              // Activate the RFID reader
       lcd.setCursor(0, 0);
       lcd.print("I am waiting... ");
