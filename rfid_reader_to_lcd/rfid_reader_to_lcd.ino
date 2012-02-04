@@ -12,7 +12,7 @@ void setup() {
   
   lcd.begin(16, 2);                      // set up the LCD's number of columns and rows
   lcd.setCursor(0, 0);
-  lcd.print("Waiting for tag.");
+  lcd.print("I am waiting... ");
 }  
 
 void loop() {
@@ -30,25 +30,25 @@ void loop() {
         } 
       } 
       if(bytesread == 10) {              // if 10 digit read is complete 
-        Serial.print("TAG code is: ");   // possibly a good TAG 
+        Serial.print("TAG code is:   "); // possibly a good TAG 
         Serial.println(code);            // print the TAG code
         lcd.setCursor(0, 0);
-        lcd.print("Tag Found.      ");
+        lcd.print("I am currently ");
         lcd.setCursor(0, 1);
         if(code[8] == 'B') {
-          lcd.print("CARD #1         ");
+          lcd.print("clapping        ");
         }
         if(code[8] == '7') {
           lcd.print("CARD #2         ");
         }
         if(code[8] == '9') {
-          lcd.print("LARGE CIRCLE TAG");
+          lcd.print("making a call.  ");
         }
         if(code[8] == '1') {
-          lcd.print("KEYRING TAG     ");
+          lcd.print("sharpening.     ");
         }
         if(code[8] == '8') {
-          lcd.print("SMALL CIRCLE TAG");
+          lcd.print("holding a cup.  ");
         }
       } 
       bytesread = 0; 
@@ -56,7 +56,7 @@ void loop() {
       delay(1500);                       // wait for a bit
       digitalWrite(7, LOW);              // Activate the RFID reader
       lcd.setCursor(0, 0);
-      lcd.print("Waiting for tag.");
+      lcd.print("I am waiting... ");
       lcd.setCursor(0, 1);
       lcd.print("                ");
     } 
