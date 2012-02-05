@@ -7,6 +7,8 @@ http://arduino.cc/en/Tutorial/SerialCallResponseASCII
 //Setup serial port
 import processing.serial.*;
 Serial myPort;
+int lf = 10;
+int numMessages = 0;
 
 // Variables for Tweeting
 static String OAuthConsumerKey;
@@ -39,8 +41,8 @@ void setup() {
   AccessTokenSecret = twitter_api_config[3];
 
   //Start listening to serial port
-  //println(Serial.list()); // Print serial list for debugging
-  myPort = new Serial(this, Serial.list()[0], 2400);
+  //println(Serial.list()); // Print serial port list for debugging
+  myPort = new Serial(this, Serial.list()[0], 9600);
   myPort.bufferUntil('\n');
 
   //Connect to Twitter
@@ -55,10 +57,16 @@ void serialEvent(Serial myPort) {
   // When complete new line is read from Serial this function is triggered
   String incomingMessage = myPort.readStringUntil('\n');
   incomingMessage = trim(incomingMessage);
+  println("SERIAL:" + incomingMessage);
   if( incomingMessage.indexOf("RFID") != -1 ) {
     String[] messageElements = split(incomingMessage, '=');
-    sendTweet("I am currently interacting with object num " + messageElements[1]);
+    //sendTweet("I am currently interacting with object num " + messageElements[1]);
     println("I am currently interacting with object num " + messageElements[1]);
+    updateLCD(messageElements[1]);
   }
 }
 
+void updateLCD(String message) {
+  myPort.write("MESSAGE " + numMessages++);
+  myPort.write(lf);
+}
