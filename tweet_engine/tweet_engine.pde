@@ -4,6 +4,10 @@ http://github.com/RobotGrrl/Simple-Processing-Twitter
 http://arduino.cc/en/Tutorial/SerialCallResponseASCII
 --------------*/
 
+//Setup serial port
+import processing.serial.*;
+Serial myPort;
+
 // Variables for Tweeting
 static String OAuthConsumerKey;
 static String OAuthConsumerSecret;
@@ -17,7 +21,7 @@ RequestToken requestToken;
 String[] theSearchTweets = new String[11];
 
 void setup() {
-  size(100, 100);
+  size(300, 300);
   background(0);
   
   //SETUP TWITTER API STUFF
@@ -34,14 +38,27 @@ void setup() {
   AccessToken = twitter_api_config[2];
   AccessTokenSecret = twitter_api_config[3];
 
-  //Now, do the Twitter stuff
+  //Start listening to serial port
+  //println(Serial.list()); // Print serial list for debugging
+  myPort = new Serial(this, Serial.list()[0], 2400);
+  myPort.bufferUntil('\n');
+
+  //Connect to Twitter
   connectTwitter();
-  sendTweet("I am exploring and testing my new P.A.U.S.E.S. device.");
-  //getTimeline();
-  //getSearchTweets();
 }
 
 void draw() {
   background(0);
+}
+
+void serialEvent(Serial myPort) { 
+  // When complete new line is read from Serial this function is triggered
+  String incomingMessage = myPort.readStringUntil('\n');
+  incomingMessage = trim(incomingMessage);
+  if( incomingMessage.indexOf("RFID") != -1 ) {
+    String[] messageElements = split(incomingMessage, '=');
+    sendTweet("I am currently interacting with object num " + messageElements[1]);
+    println("I am currently interacting with object num " + messageElements[1]);
+  }
 }
 
