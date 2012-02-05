@@ -30,7 +30,7 @@ void setup() {
   size(256, 256);
   bg = loadImage("logo.png");
   background(bg);
-  
+    
   //SETUP TWITTER API STUFF
   //Get the API keys/tokens from the config txt file - in the data folder
   String[] config_txt = loadStrings("twitter_api_keys_tokens.txt");
@@ -78,8 +78,9 @@ void serialEvent(Serial myPort) {
     String[] messageElements = split(incomingMessage, '=');
     String rfid = messageElements[1].substring(0, 10);
     RfidTag r = (RfidTag) rfids.get(rfid);
-    sendTweet("I am currently holding " + r.name);
-    println("I am currently holding " + r.name);
+    say("John is currently holding " + r.name, "Alex", 200);
+    //sendTweet("I am currently holding " + r.name);
+    println("John is currently holding " + r.name);
     updateLCD(r.name);
   }
 }
@@ -87,4 +88,13 @@ void serialEvent(Serial myPort) {
 void updateLCD(String message) {
   myPort.write(message);
   myPort.write(lf);
+}
+
+void say(String script, String voice, int speed) {
+  try {
+    Runtime.getRuntime().exec(new String[] {"say", "-v", voice, "[[rate " + speed + "]]" + script});
+  }
+  catch (IOException e) {
+    System.err.println("IOException");
+  }
 }
