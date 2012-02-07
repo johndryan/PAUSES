@@ -26,6 +26,14 @@ String[] theSearchTweets = new String[11];
 //RFID Hashmap
 HashMap rfids;
 
+//UDP for communication with external project (library: http://ubaa.net/shared/processing/udp/)
+import hypermedia.net.*;
+UDP udp;
+String myIP = "10.5.128.26";
+String remoteIP = "10.5.1289526";
+int port = 6000;
+String udpMessage;
+
 void setup() {
   size(256, 256);
   bg = loadImage("logo.png");
@@ -59,6 +67,10 @@ void setup() {
   //println(Serial.list()); // Print serial port list for debugging
   myPort = new Serial(this, Serial.list()[0], 9600);
   myPort.bufferUntil('\n');
+  
+  //UDP
+  udp = new UDP(this, port, myIP);
+  udp.listen(true);
 
   //Connect to Twitter
   connectTwitter();
@@ -80,6 +92,12 @@ void serialEvent(Serial myPort) {
     RfidTag r = (RfidTag) rfids.get(rfid);
     tellTheWorld("I am currently holding " + r.name + ".");
   }
+}
+
+void receive( byte[] data ) {          // <-- UDP default handler
+  udpMessage = "";
+  for (int i=0; i < data.length; i++) udpMessage = udpMessage + char(data[i]);
+  tellTheWorld(udpMessage);
 }
 
 void tellTheWorld(String message) {
