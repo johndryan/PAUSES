@@ -79,10 +79,17 @@ void serialEvent(Serial myPort) {
     String rfid = messageElements[1].substring(0, 10);
     RfidTag r = (RfidTag) rfids.get(rfid);
     say("John is currently holding " + r.name, "Alex", 200);
-    //sendTweet("I am currently holding " + r.name);
-    println("John is currently holding " + r.name);
-    updateLCD(r.name);
+    //sendTweet("I am currently holding " + r.name + ".");
+    println("John is currently holding " + r.name + ".");
+    updateLCD("I am currently holding " + r.name + ".");
   }
+}
+
+void tellTheWorld(String message) {
+  println(message);
+  say(message, "Alex", 200);
+  //sendTweet("I am currently holding " + r.name + ".");
+  updateLCD(message);
 }
 
 void updateLCD(String message) {
