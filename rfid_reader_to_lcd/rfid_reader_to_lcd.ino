@@ -5,11 +5,15 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2);   // initialize the library with the numb
 SoftwareSerial rfidPort(8, 9);           // software serial: TX = not needed, set to unused pin, RX = digital pin 3
 
 int  val = 0; 
-char code[10]; 
+char code[10];
 char message[160];
+char lastChar;
 int bytesread = 0;
 int messageBytesRead = 0;
 int speakerPin = 6;
+int currentLetter = 0;
+int numSpaces = 0;
+boolean messagePresent = false;
 
 void setup() { 
   Serial.begin(9600);                    // RFID reader SOUT pin connected to Serial RX pin at 2400bps
@@ -32,7 +36,8 @@ void loop() {
   //Check Hardware Serial for comms with Processing
   if(Serial.available() > 0) {
     messageBytesRead = 0;
-    val = 0;
+    val = 0; 
+    char tempMessage[160];
     while(val != 10) {              // read 160 digit code 
       if( Serial.available() > 0) { 
         val = Serial.read(); 
@@ -42,11 +47,27 @@ void loop() {
         message[messageBytesRead] = val;         // add the digit           
         messageBytesRead++;                   // ready to read next digit  
       } 
-    } 
-    if(messageBytesRead > 1) {              // if 10 digit read is complete 
+    }
+    if(messageBytesRead > 1) {              // if 10 digit read is complete
+      for (int thisChar = messageBytesRead; thisChar < 160; thisChar++) {
+        message[thisChar] = 32;
+      }
+      messagePresent = true;  
       lcd.clear();
+      lcd.autoscroll();
       lcd.setCursor(0, 0);
-      lcd.print(message);
+    }
+  }
+  
+  if(messagePresent) {
+    lastChar = message[currentLetter];
+    lcd.print(lastChar);
+    currentLetter++;
+    delay(500);
+    if (message[currentLetter] == 32 && lastChar == 32) numSpaces++;
+    if (currentLetter > messageBytesRead  || numSpaces > 16) {
+      currentLetter = 0;
+      numSpaces = 0;
     }
   }
   
@@ -71,6 +92,7 @@ void loop() {
       bytesread = 0; 
       digitalWrite(9, HIGH);             // deactivate the RFID reader for a moment so it will not flood
       lcd.clear();
+      lcd.noAutoscroll();
       lcd.setCursor(0, 0);
       lcd.print("  INTERPRETING");
       lcd.setCursor(0, 1);
