@@ -58,8 +58,9 @@ void setup() {
   String[] rfidTags = loadStrings("tag_list.csv");
   int counter = 0;
   for (int i=0; i<rfidTags.length; i++) {
-    String[] splitline = splitTokens(rfidTags[i],",");
-    RfidTag r = new RfidTag(splitline[0],splitline[1],boolean(splitline[2]),splitline[3]);
+    String[] splitline = splitTokens(rfidTags[i],"\t");
+    String[] phrases = { splitline[4], splitline[5], splitline[6] };
+    RfidTag r = new RfidTag(splitline[0],splitline[1],boolean(splitline[2]),splitline[3],phrases);
     rfids.put(splitline[1], r);
   }
 
@@ -90,7 +91,8 @@ void serialEvent(Serial myPort) {
     String[] messageElements = split(incomingMessage, '=');
     String rfid = messageElements[1].substring(0, 10);
     RfidTag r = (RfidTag) rfids.get(rfid);
-    tellTheWorld("I am currently holding " + r.name + ".");
+    String myPhrase = r.phrases[int(random(2))];
+    tellTheWorld(myPhrase);
   }
 }
 
