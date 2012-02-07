@@ -17,6 +17,8 @@ boolean messagePresent = false;
 boolean scrollLeft = true;
 String trimmedMessage = "";
 
+unsigned long lastTime;
+
 void setup() { 
   Serial.begin(9600);                    // RFID reader SOUT pin connected to Serial RX pin at 2400bps
   pinMode(8, INPUT);                     // Set pin 8 as INPUT to accept SOUT from RFID pin
@@ -32,6 +34,7 @@ void setup() {
   lcd.print("     ready!     ");
 
   Serial.println("Hello World!");
+  lastTime = millis();
 }  
 
 void loop() {
@@ -71,7 +74,6 @@ void loop() {
 
   //Check Software Serial for RFID readings
   if(rfidPort.available() > 0) {           // if data available from reader 
-    //Serial.println("RFID received");
     if((val = rfidPort.read()) == 10) {    // check for header
       bytesread = 0; 
       while(bytesread<10) {              // read 10 digit code 
@@ -83,29 +85,35 @@ void loop() {
           code[bytesread] = val;         // add the digit           
           bytesread++;                   // ready to read next digit  
         } 
-      } 
-      if(bytesread == 10) {              // if 10 digit read is complete 
-        Serial.print("RFID="); // possibly a good TAG 
-        Serial.println(code);            // print the TAG code
-      } 
-      bytesread = 0; 
-      digitalWrite(9, HIGH);             // deactivate the RFID reader for a moment so it will not flood
-      lcd.clear();
-      //lcd.noAutoscroll();
-      lcd.setCursor(0, 0);
-      lcd.print("  INTERPRETING");
-      lcd.setCursor(0, 1);
-      lcd.print("      DATA");
-      analogWrite(speakerPin, 128);      // Send pwm wave to speaker
-      delay(250);                        // wait for half a second
-      digitalWrite(speakerPin, LOW);     // turn the speaker off
-      delay(1000);                       // wait for a bit
-      digitalWrite(9, LOW);              // Activate the RFID readerdigitalWrite(9, LOW);              // Activate the RFID reader
-    } 
+      }
+      unsigned long now = millis();
+      if((now - lastTime) > 3000) {
+        lastTime = now;
+        digitalWrite(9, HIGH);             // deactivate the RFID reader for a moment so it will not flood
+        if(bytesread == 10) {              // if 10 digit read is complete 
+          Serial.print("RFID="); // possibly a good TAG 
+          Serial.println(code);            // print the TAG code
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.noAutoscroll();
+          lcd.print("  INTERPRETING");
+          lcd.setCursor(0, 1);
+          lcd.print("      DATA");
+          analogWrite(speakerPin, 128);      // Send pwm wave to speaker
+          delay(250);                        // wait for half a second
+          digitalWrite(speakerPin, LOW);     // turn the speaker off
+        }
+        delay(1500);                       // wait for a bit
+        digitalWrite(9, LOW);              // Activate the RFID reader
+      }
+      bytesread = 0;
+    }
   }
 } 
 
 // extra stuff
 // digitalWrite(2, HIGH);             // deactivate RFID reader 
+
+
 
 
