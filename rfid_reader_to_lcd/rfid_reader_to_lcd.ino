@@ -12,8 +12,10 @@ int bytesread = 0;
 int messageBytesRead = 0;
 int speakerPin = 6;
 int currentLetter = 0;
-int numSpaces = 0;
+//int numSpaces = 0;
 boolean messagePresent = false;
+boolean scrollLeft = true;
+String trimmedMessage = "";
 
 void setup() { 
   Serial.begin(9600);                    // RFID reader SOUT pin connected to Serial RX pin at 2400bps
@@ -22,18 +24,18 @@ void setup() {
   pinMode(9,OUTPUT);                     // Set digital pin 2 as OUTPUT to connect it to the RFID/ENABLE pin
   digitalWrite(9, LOW);                  // Activate the RFID reader
   pinMode(speakerPin, OUTPUT);           // Set pin for speaker output
-  
+
   lcd.begin(16, 2);                      // set up the LCD's number of columns and rows
   lcd.setCursor(0, 0);
   lcd.print("->P.A.U.S.E.S.<-");
   lcd.setCursor(0, 1);
   lcd.print("     ready!     ");
-  
+
   Serial.println("Hello World!");
 }  
 
 void loop() {
-  //Check Hardware Serial for comms with Processing
+  //Check Hardware Serial for comms with Processing 
   if(Serial.available() > 0) {
     messageBytesRead = 0;
     val = 0; 
@@ -49,30 +51,27 @@ void loop() {
       } 
     }
     if(messageBytesRead > 1) {              // if 10 digit read is complete
-      for (int thisChar = messageBytesRead; thisChar < 160; thisChar++) {
-        message[thisChar] = 32;
+      trimmedMessage = "";
+      for (int thisChar = 0; thisChar < messageBytesRead; thisChar++) {
+        trimmedMessage = trimmedMessage + message[thisChar];
       }
-      messagePresent = true;  
       lcd.clear();
-      lcd.autoscroll();
-      lcd.setCursor(0, 0);
-    }
-  }
-  
-  if(messagePresent) {
-    lastChar = message[currentLetter];
-    lcd.print(lastChar);
-    currentLetter++;
-    delay(500);
-    if (message[currentLetter] == 32 && lastChar == 32) numSpaces++;
-    if (currentLetter > messageBytesRead  || numSpaces > 16) {
       currentLetter = 0;
-      numSpaces = 0;
+      lcd.setCursor(1, 0);
+      lcd.print(trimmedMessage);
+      messagePresent = true;
     }
   }
-  
+
+  //Scroll message if present
+  if(messagePresent) {
+    lcd.scrollDisplayLeft();
+    delay(400);
+  }
+
   //Check Software Serial for RFID readings
   if(rfidPort.available() > 0) {           // if data available from reader 
+    //Serial.println("RFID received");
     if((val = rfidPort.read()) == 10) {    // check for header
       bytesread = 0; 
       while(bytesread<10) {              // read 10 digit code 
@@ -92,7 +91,7 @@ void loop() {
       bytesread = 0; 
       digitalWrite(9, HIGH);             // deactivate the RFID reader for a moment so it will not flood
       lcd.clear();
-      lcd.noAutoscroll();
+      //lcd.noAutoscroll();
       lcd.setCursor(0, 0);
       lcd.print("  INTERPRETING");
       lcd.setCursor(0, 1);
@@ -101,11 +100,12 @@ void loop() {
       delay(250);                        // wait for half a second
       digitalWrite(speakerPin, LOW);     // turn the speaker off
       delay(1000);                       // wait for a bit
-      digitalWrite(9, LOW);              // Activate the RFID reader
+      digitalWrite(9, LOW);              // Activate the RFID readerdigitalWrite(9, LOW);              // Activate the RFID reader
     } 
   }
 } 
 
 // extra stuff
 // digitalWrite(2, HIGH);             // deactivate RFID reader 
+
 
