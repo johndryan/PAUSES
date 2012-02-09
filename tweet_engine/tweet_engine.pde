@@ -10,6 +10,8 @@ import processing.serial.*;
 Serial myPort;
 int lf = 10;
 int numMessages = 0;
+int numOfPhrases = 3;
+int whichPhrase = 0;
 
 // Variables for Tweeting
 static String OAuthConsumerKey;
@@ -29,8 +31,8 @@ HashMap rfids;
 //UDP for communication with external project (library: http://ubaa.net/shared/processing/udp/)
 import hypermedia.net.*;
 UDP udp;
-String myIP = "10.5.128.26";
-String remoteIP = "10.5.1289526";
+String myIP = "10.5.128.48";
+String remoteIP = "10.5.128.107";
 int port = 6000;
 String udpMessage;
 
@@ -52,6 +54,7 @@ void setup() {
   OAuthConsumerSecret = twitter_api_config[1];
   AccessToken = twitter_api_config[2];
   AccessTokenSecret = twitter_api_config[3];
+  println(AccessToken);
 
   //Load RFID tag info
   rfids = new HashMap();
@@ -91,8 +94,10 @@ void serialEvent(Serial myPort) {
     String[] messageElements = split(incomingMessage, '=');
     String rfid = messageElements[1].substring(0, 10);
     RfidTag r = (RfidTag) rfids.get(rfid);
-    String myPhrase = r.phrases[int(random(2))];
+    String myPhrase = r.phrases[whichPhrase];
     tellTheWorld(myPhrase);
+    whichPhrase++;
+    if (whichPhrase >= numOfPhrases) whichPhrase = 0;
   }
 }
 
@@ -104,12 +109,15 @@ void receive( byte[] data ) {          // <-- UDP default handler
 
 void tellTheWorld(String message) {
   println(message);
-  say(message, "Alex", 200);
-  //sendTweet("I am currently holding " + r.name + ".");
+  say(message, "Victoria", 200);
+  sendTweet(message);
   updateLCD(message);
 }
 
 void updateLCD(String message) {
+  int sentence1 = message.indexOf(".") + 1;
+  message = message.substring(0, sentence1);
+  println("LCD: " + message);
   myPort.write(message);
   myPort.write(lf);
 }
