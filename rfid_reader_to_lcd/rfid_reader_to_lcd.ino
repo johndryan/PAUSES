@@ -6,7 +6,7 @@ SoftwareSerial rfidPort(8, 9);           // software serial: TX = not needed, se
 
 int  val = 0; 
 char code[10];
-char message[140];
+char message[61];
 char lastChar;
 int bytesread = 0;
 int messageBytesRead = 0;
@@ -42,7 +42,7 @@ void loop() {
   if(Serial.available() > 0) {
     messageBytesRead = 0;
     val = 0; 
-    char tempMessage[140];
+    char tempMessage[61];
     while(val != 10) {              // read 140 digit code 
       if( Serial.available() > 0) { 
         val = Serial.read(); 
